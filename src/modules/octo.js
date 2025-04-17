@@ -85,8 +85,6 @@ export default async function octo(provider, wallet, contract, channel) {
         continue
       }
 
-      await approveIfNeeded(tokenContract, wallet, balance, contract.router)
-
       const wait2 = config.randomDelay(delayMin, delayMax, `for reverse SWAP ${token.symbol} → MON`)
       await channel.send(wait2.message)
       await wait2.promise
@@ -147,11 +145,4 @@ export default async function octo(provider, wallet, contract, channel) {
   }
 
   return `Cycle complete for ${wallet.address}`
-}
-
-const approveIfNeeded = async (tokenContract, wallet, amount, routerAddress) => {
-  const allowance = await tokenContract.allowance(wallet.address, routerAddress)
-  if (BigInt(allowance) >= BigInt(amount)) return
-  const tx = await tokenContract.approve(routerAddress, ethers.MaxUint256)
-  await tx.wait()
 }

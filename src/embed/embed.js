@@ -17,29 +17,52 @@ export const sendEmbedDropdown = async (client, channelId) => {
   )
 
   const grouped = Object.entries(contracts).reduce((acc, [, { name, type }]) => {
-    if (!acc[type]) acc[type] = []
-    acc[type].push(name)
+    const key = type.toUpperCase()
+    if (!acc[key]) acc[key] = []
+    acc[key].push(name)
     return acc
   }, {})
 
-  const moduleList = Object.entries(grouped)
-    .sort()
-    .map(([type, names]) =>
-      `\n${type.toUpperCase()}\n - ${names.sort().join('\n - ')}`
-    )
-    .join('\n')
-
   const embed = new EmbedBuilder()
-    .setTitle('Monad Testnet')
-    .setDescription(
-      [
-        'Select a strategy to simulate DeFi behaviors on the Monad testnet.',
-        moduleList,
-        '\nEach task runs in a private thread and executes autonomously.'
-      ].join('\n')
+    .setTitle("Monad Testnet")
+    .setDescription("Select a strategy to simulate DeFi behaviors on the Monad testnet.")
+    .addFields(
+      {
+        name: 'DEX',
+        value: grouped.DEX?.sort().map(n => `- ${n}`).join('\n') || '-',
+        inline: true
+      },
+      {
+        name: 'STAKE',
+        value: grouped.STAKE?.sort().map(n => `- ${n}`).join('\n') || '-',
+        inline: true
+      },
+      {
+        name: '\u200B',
+        value: '\u200B',
+        inline: true
+      },
+      {
+        name: 'NFT',
+        value: grouped.NFT?.sort().map(n => `- ${n}`).join('\n') || '-',
+        inline: true
+      },
+      {
+        name: 'WRAP',
+        value: grouped.WRAP?.sort().map(n => `- ${n}`).join('\n') || '-',
+        inline: true
+      },
+      {
+        name: '\u200B',
+        value: '\u200B',
+        inline: true
+      }
     )
-    .setThumbnail('https://github.com/jevenchy/monad-testnet/raw/main/img/bot_avatar.png')
     .setColor(config.color)
+    .setThumbnail("https://raw.githubusercontent.com/jevenchy/monad-testnet/main/img/bot_avatar.png")
+    .setFooter({
+      text: "Each task runs in a private thread.",
+    })
 
   const row = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()

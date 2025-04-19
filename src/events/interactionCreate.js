@@ -54,7 +54,7 @@ export default {
       return interaction.showModal(modal)
     }
 
-    if (interaction.isModalSubmit() && interaction.customId.startsWith('modal_')) {
+    if (interaction.isModalSubmit() && interaction.customId.startsWith('modal_') && interaction.customId !== 'modal_create_wallet' && interaction.customId !== 'modal_request_faucet') {
       const project = interaction.customId.replace('modal_', '')
       const pk = interaction.fields.getTextInputValue('private_key')
       const username = interaction.user.username
@@ -70,7 +70,7 @@ export default {
         })
 
         if (!thread || typeof thread.send !== 'function') {
-          await safeReply(interaction, `Failed to create thread`)
+          await safeReply(interaction, `Failed to create thread.`)
           return
         }
 
@@ -79,8 +79,54 @@ export default {
         await runProject(project, pk, thread, username)
       } catch (err) {
         logError(err)
-        await safeReply(interaction, `Failed to initialize thread`)
+        await safeReply(interaction, `Failed to initialize project.`)
       }
+    }
+
+    if (interaction.isButton() && interaction.customId === 'create_wallet') {
+      const modal = new ModalBuilder()
+        .setCustomId('modal_create_wallet')
+        .setTitle('Generate Wallet')
+
+      const countInput = new TextInputBuilder()
+        .setCustomId('wallet_count')
+        .setLabel('How many wallets do you want to generate?')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('Ex: 3')
+        .setRequired(true)
+
+      modal.addComponents(new ActionRowBuilder().addComponents(countInput))
+
+      return interaction.showModal(modal)
+    }
+
+    if (interaction.isButton() && interaction.customId === 'request_faucet') {
+      return await safeReply(interaction, 'Faucet is not implemented yet.')
+    }
+
+    if (interaction.isButton() && interaction.customId === 'swap_all_to_mon') {
+      return await safeReply(interaction, 'Swap All to MON is not implemented yet.')
+    }
+
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_create_wallet') {
+      const countRaw = interaction.fields.getTextInputValue('wallet_count')
+      const count = parseInt(countRaw)
+
+      if (isNaN(count) || count <= 0 || count > 10) {
+        return await safeReply(interaction, 'Please enter a valid number between 1 and 10.')
+      }
+
+      const Wallet = (await import('ethers')).Wallet
+      const wallets = Array.from({ length: count }, () => Wallet.createRandom())
+
+      const lines = wallets.flatMap((w, i) => [
+        `#${i + 1}`,
+        `Address           : ${w.address}`,
+        `PrivateKey        : ${w.privateKey}`,
+        ''
+      ])
+
+      await safeReply(interaction, `\`\`\`\n${lines.join('\n')}\`\`\``)
     }
   }
 }

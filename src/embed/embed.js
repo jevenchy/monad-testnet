@@ -3,6 +3,8 @@ import {
   ActionRowBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   EmbedBuilder
 } from 'discord.js'
 import { config } from '../../config/config.js'
@@ -64,15 +66,30 @@ export const sendEmbedDropdown = async (client, channelId) => {
       text: "Each task runs in a private thread.",
     })
 
-  const row = new ActionRowBuilder().addComponents(
+  const dropdownRow = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId('select_project')
       .setPlaceholder('Select a project')
       .addOptions(options)
   )
 
+  const buttonRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('create_wallet')
+      .setLabel('Create Wallet')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('request_faucet')
+      .setLabel('Faucet')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('swap_all_to_mon')
+      .setLabel('Swap All to MON')
+      .setStyle(ButtonStyle.Secondary)
+  )
+
   await channel.send({
     embeds: [embed],
-    components: [row]
+    components: [dropdownRow, buttonRow]
   })
 }

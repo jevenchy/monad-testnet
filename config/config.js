@@ -37,7 +37,7 @@ export const config = {
   },
 
   amount: {
-    min: 0.001,
-    max: 0.003
+    min: 0.01,
+    max: 0.02
   }
 }

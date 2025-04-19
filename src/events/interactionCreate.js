@@ -7,7 +7,9 @@ import {
   MessageFlags,
   ChannelType,
   StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder
+  StringSelectMenuOptionBuilder,
+  ButtonBuilder,
+  ButtonStyle
 } from 'discord.js'
 import { config } from '../../config/config.js'
 import { contracts } from '../../config/contracts.js'
@@ -50,7 +52,22 @@ export default {
           )
       )
 
-      await interaction.message.edit({ components: [resetRow] })
+      const buttonRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('create_wallet')
+          .setLabel('Create Wallet')
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId('request_faucet')
+          .setLabel('Faucet')
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId('swap_all_to_mon')
+          .setLabel('Swap All to MON')
+          .setStyle(ButtonStyle.Secondary)
+      )
+
+      await interaction.message.edit({ components: [resetRow, buttonRow] })
       return interaction.showModal(modal)
     }
 

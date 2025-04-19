@@ -27,10 +27,6 @@ export const tokens = {
     address: '0x88b8E2161DEDC77EF4ab7585569D2415a1C1055D',
     decimals: 6
   },
-  WSOL: {
-    address: '0x5387C85A4965769f6B0Df430638a1388493486F1',
-    decimals: 9
-  },
   WETH: {
     address: '0xB5a30b0FDc5EA94A52fDc42e3E9760Cb8449Fb37',
     decimals: 18

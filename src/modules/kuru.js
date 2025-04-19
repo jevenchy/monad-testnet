@@ -101,6 +101,8 @@ export default async function kuru(provider, wallet, contract, channel) {
         continue
       }
 
+      await approveIfNeeded(wallet, to, amount, contract.router)
+ 
       let reverseTx
       let reverseHash = { value: null }
 
@@ -179,4 +181,12 @@ const getExpectedOut = async (utils, route, isBuy, amountIn) => {
   const price = await utils.calculatePriceOverRoute(route, isBuy)
   const rawOut = (amountIn * BigInt(price)) / ethers.WeiPerEther
   return (rawOut * 85n) / 100n
+}
+
+const approveIfNeeded = async (wallet, tokenAddress, amount, routerAddress) => {
+  const token = new Contract(tokenAddress, kuruABI.filter(f => f.name === 'approve' || f.name === 'allowance'), wallet)
+  const allowance = await token.allowance(wallet.address, routerAddress)
+  if (BigInt(allowance) >= BigInt(amount)) return
+  const tx = await token.approve(routerAddress, ethers.MaxUint256)
+  await tx.wait()
 }

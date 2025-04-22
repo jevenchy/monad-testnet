@@ -1,4 +1,4 @@
-import { Interface, parseEther, formatEther } from 'ethers'
+import { Interface, Contract, parseEther, formatEther } from 'ethers'
 import { config } from '../../config/config.js'
 import { rawInfo } from '../utils/rawInfo.js'
 import { handleError } from '../utils/handleError.js'
@@ -67,6 +67,14 @@ export default async function shmonad(provider, wallet, contract, channel) {
     await channel.send(wait.message)
     await wait.promise
 
+    const shToken = new Contract(contract.contract, shmonadABI, provider)
+    const shares = await shToken.balanceOf(wallet.address)
+
+    if (shares === 0n) {
+      await channel.send('No shMONAD balance to redeem')
+      continue
+    }
+
     let unstakeTx
     let unstakeHash = { value: null }
 
@@ -82,7 +90,7 @@ export default async function shmonad(provider, wallet, contract, channel) {
       try {
         const tx = await wallet.sendTransaction({
           to: contract.contract,
-          data: iface.encodeFunctionData('redeem', [amount, wallet.address, wallet.address]),
+          data: iface.encodeFunctionData('redeem', [shares, wallet.address, wallet.address]),
           gasLimit
         })
 
@@ -95,7 +103,7 @@ export default async function shmonad(provider, wallet, contract, channel) {
         }
 
         const short = tx.hash.slice(0, 7) + '...' + tx.hash.slice(-7)
-        await channel.send(`UNSTAKE ${amountStr} shMONAD → MON → TX [${short}](<${config.explorer}${tx.hash}>)`)
+        await channel.send(`UNSTAKE ${formatEther(shares)} shMONAD → MON → TX [${short}](<${config.explorer}${tx.hash}>)`)
         unstakeTx = tx
         if (config.rawInfo) await rawInfo(provider, tx.hash, channel, iface)
         break

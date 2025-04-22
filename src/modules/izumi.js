@@ -12,7 +12,7 @@ export default async function izumi(provider, wallet, contract, channel) {
   const { min: delayMin, max: delayMax } = config.delay
   const wmon = config.tokens.WMON.address
   const symbols = ['USDC', 'USDT', 'WSOL', 'WETH', 'WBTC', 'DAK', 'YAKI', 'COG']
-  const deadline = Math.floor(Date.now() / 1000) + 600
+  const deadline = Math.floor(Date.now() / 1000) + 3000
 
   for (let i = 0; i < config.cycle; i++) {
     await channel.send(`Starting cycle ${i + 1}/${config.cycle}`)

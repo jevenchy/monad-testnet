@@ -13,7 +13,7 @@ export default async function madness(provider, wallet, contract, channel) {
   const wmon = config.tokens.WMON.address
   const symbols = ['MAD', 'CHOG', 'DAK', 'YAKI', 'USDT', 'USDC', 'WETH', 'WBTC']
   const tokens = symbols.map(symbol => ({ symbol, ...config.tokens[symbol] }))
-  const deadline = Math.floor(Date.now() / 1000) + 1800
+  const deadline = Math.floor(Date.now() / 1000) + 3000
 
   for (let i = 0; i < config.cycle; i++) {
     await channel.send(`Starting cycle ${i + 1}/${config.cycle}`)

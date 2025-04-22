@@ -11,7 +11,9 @@ export default async function bean(provider, wallet, contract, channel) {
   const amountStr = formatEther(amount)
   const { min: delayMin, max: delayMax } = config.delay
   const wmon = config.tokens.WMON.address
-  const allTokens = Object.entries(config.tokens).filter(([symbol]) => symbol !== 'WMON')
+  const excluded = ['YAKI', 'MONDA', 'MOON', 'MUK', 'MAD', 'CHOG']
+  const allTokens = Object.entries(config.tokens)
+    .filter(([symbol]) => symbol !== 'WMON' && !excluded.includes(symbol))
   const deadline = Math.floor(Date.now() / 1000) + 600
 
   for (let i = 0; i < config.cycle; i++) {
@@ -30,7 +32,6 @@ export default async function bean(provider, wallet, contract, channel) {
 
       for (let retry = 0; retry < config.retry; retry++) {
         const gasLimit = config.gas.swap[retry % config.gas.swap.length]
-
         if (retry > 0) {
           const wait = config.randomDelay(delayMin, delayMax, `retrying SWAP MON → ${symbol} (${retry})`)
           await channel.send(wait.message)
@@ -54,9 +55,7 @@ export default async function bean(provider, wallet, contract, channel) {
           const short = tx.hash.slice(0, 7) + '...' + tx.hash.slice(-7)
           await channel.send(`SWAP ${amountStr} MON → ${symbol} → TX [${short}](<${config.explorer}${tx.hash}>)`)
           swapTx = tx
-          if (config.rawInfo) {
-            await rawInfo(provider, tx.hash, channel)
-          }
+          if (config.rawInfo) await rawInfo(provider, tx.hash, channel)
           break
         } catch (err) {
           const action = await handleError({ err, phase: `SWAP MON → ${symbol}`, gasLimit, hashRef: swapHash, channel })
@@ -95,7 +94,6 @@ export default async function bean(provider, wallet, contract, channel) {
 
       for (let retry = 0; retry < config.retry; retry++) {
         const gasLimit = config.gas.swap[retry % config.gas.swap.length]
-
         if (retry > 0) {
           const wait = config.randomDelay(delayMin, delayMax, `retrying Reverse SWAP ${symbol} → MON (${retry})`)
           await channel.send(wait.message)
@@ -118,9 +116,7 @@ export default async function bean(provider, wallet, contract, channel) {
           const short = tx.hash.slice(0, 7) + '...' + tx.hash.slice(-7)
           await channel.send(`Reverse SWAP ${amountStr} ${symbol} → MON → TX [${short}](<${config.explorer}${tx.hash}>)`)
           reverseTx = tx
-          if (config.rawInfo) {
-            await rawInfo(provider, tx.hash, channel)
-          }
+          if (config.rawInfo) await rawInfo(provider, tx.hash, channel)
           break
         } catch (err) {
           const action = await handleError({ err, phase: `Reverse SWAP ${symbol} → MON`, gasLimit, hashRef: reverseHash, channel })

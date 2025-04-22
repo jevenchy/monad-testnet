@@ -11,10 +11,10 @@ export default async function bean(provider, wallet, contract, channel) {
   const amountStr = formatEther(amount)
   const { min: delayMin, max: delayMax } = config.delay
   const wmon = config.tokens.WMON.address
-  const excluded = ['YAKI', 'MONDA', 'MOON', 'MUK', 'MAD', 'CHOG']
+  const excluded = ['MONDA', 'MOON', 'MAD']
   const allTokens = Object.entries(config.tokens)
     .filter(([symbol]) => symbol !== 'WMON' && !excluded.includes(symbol))
-  const deadline = Math.floor(Date.now() / 1000) + 600
+  const deadline = Math.floor(Date.now() / 1000) + 3000
 
   for (let i = 0; i < config.cycle; i++) {
     await channel.send(`Starting cycle ${i + 1}/${config.cycle}`)
